@@ -22,7 +22,7 @@ namespace bustub {
  */
 class HashComparator {
  public:
-  inline auto operator()(const hash_t lhs, const hash_t rhs) -> int { return lhs < rhs ? -1 : (lhs > rhs ? 1 : 0); }
+  inline int operator()(const hash_t lhs, const hash_t rhs) { return lhs < rhs ? -1 : (lhs > rhs ? 1 : 0); }
 };
 
 }  // namespace bustub

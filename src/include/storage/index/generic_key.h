@@ -41,7 +41,7 @@ class GenericKey {
     memcpy(data_, &key, sizeof(int64_t));
   }
 
-  inline auto ToValue(Schema *schema, uint32_t column_idx) const -> Value {
+  inline Value ToValue(Schema *schema, uint32_t column_idx) const {
     const char *data_ptr;
     const auto &col = schema->GetColumn(column_idx);
     const TypeId column_type = col.GetType();
@@ -57,11 +57,11 @@ class GenericKey {
 
   // NOTE: for test purpose only
   // interpret the first 8 bytes as int64_t from data vector
-  inline auto ToString() const -> int64_t { return *reinterpret_cast<int64_t *>(const_cast<char *>(data_)); }
+  inline int64_t ToString() const { return *reinterpret_cast<int64_t *>(const_cast<char *>(data_)); }
 
   // NOTE: for test purpose only
   // interpret the first 8 bytes as int64_t from data vector
-  friend auto operator<<(std::ostream &os, const GenericKey &key) -> std::ostream & {
+  friend std::ostream &operator<<(std::ostream &os, const GenericKey &key) {
     os << key.ToString();
     return os;
   }
@@ -76,7 +76,7 @@ class GenericKey {
 template <size_t KeySize>
 class GenericComparator {
  public:
-  inline auto operator()(const GenericKey<KeySize> &lhs, const GenericKey<KeySize> &rhs) const -> int {
+  inline int operator()(const GenericKey<KeySize> &lhs, const GenericKey<KeySize> &rhs) const {
     uint32_t column_count = key_schema_->GetColumnCount();
 
     for (uint32_t i = 0; i < column_count; i++) {

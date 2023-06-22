@@ -66,9 +66,9 @@ namespace bustub {
 
 TinyintType::TinyintType() : IntegerParentType(TINYINT) {}
 
-auto TinyintType::IsZero(const Value &val) const -> bool { return (val.value_.tinyint_ == 0); }
+bool TinyintType::IsZero(const Value &val) const { return (val.value_.tinyint_ == 0); }
 
-auto TinyintType::Add(const Value &left, const Value &right) const -> Value {
+Value TinyintType::Add(const Value &left, const Value &right) const {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -80,7 +80,7 @@ auto TinyintType::Add(const Value &left, const Value &right) const -> Value {
   throw Exception("type error");
 }
 
-auto TinyintType::Subtract(const Value &left, const Value &right) const -> Value {
+Value TinyintType::Subtract(const Value &left, const Value &right) const {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -92,7 +92,7 @@ auto TinyintType::Subtract(const Value &left, const Value &right) const -> Value
   throw Exception("type error");
 }
 
-auto TinyintType::Multiply(const Value &left, const Value &right) const -> Value {
+Value TinyintType::Multiply(const Value &left, const Value &right) const {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -104,7 +104,7 @@ auto TinyintType::Multiply(const Value &left, const Value &right) const -> Value
   throw Exception("type error");
 }
 
-auto TinyintType::Divide(const Value &left, const Value &right) const -> Value {
+Value TinyintType::Divide(const Value &left, const Value &right) const {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -120,7 +120,7 @@ auto TinyintType::Divide(const Value &left, const Value &right) const -> Value {
   throw Exception("type error");
 }
 
-auto TinyintType::Modulo(const Value &left, const Value &right) const -> Value {
+Value TinyintType::Modulo(const Value &left, const Value &right) const {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -141,7 +141,7 @@ auto TinyintType::Modulo(const Value &left, const Value &right) const -> Value {
     case TypeId::BIGINT:
       return ModuloValue<int8_t, int64_t>(left, right);
     case TypeId::DECIMAL:
-      return {TypeId::DECIMAL, ValMod(left.value_.tinyint_, right.GetAs<double>())};
+      return Value(TypeId::DECIMAL, ValMod(left.value_.tinyint_, right.GetAs<double>()));
     case TypeId::VARCHAR: {
       auto r_value = right.CastAs(TypeId::TINYINT);
       return ModuloValue<int8_t, int8_t>(left, r_value);
@@ -153,39 +153,39 @@ auto TinyintType::Modulo(const Value &left, const Value &right) const -> Value {
   throw Exception("type error");
 }
 
-auto TinyintType::Sqrt(const Value &val) const -> Value {
+Value TinyintType::Sqrt(const Value &val) const {
   assert(val.CheckInteger());
   if (val.IsNull()) {
-    return {TypeId::DECIMAL, BUSTUB_DECIMAL_NULL};
+    return Value(TypeId::DECIMAL, BUSTUB_DECIMAL_NULL);
   }
 
   if (val.value_.tinyint_ < 0) {
     throw Exception(ExceptionType::DECIMAL, "Cannot take square root of a negative number.");
   }
-  return {TypeId::DECIMAL, std::sqrt(val.value_.tinyint_)};
+  return Value(TypeId::DECIMAL, std::sqrt(val.value_.tinyint_));
 
   throw Exception("type error");
 }
 
-auto TinyintType::OperateNull(const Value &left __attribute__((unused)), const Value &right) const -> Value {
+Value TinyintType::OperateNull(const Value &left __attribute__((unused)), const Value &right) const {
   switch (right.GetTypeId()) {
     case TypeId::TINYINT:
-      return {TypeId::TINYINT, static_cast<int8_t>(BUSTUB_INT8_NULL)};
+      return Value(TypeId::TINYINT, static_cast<int8_t>(BUSTUB_INT8_NULL));
     case TypeId::SMALLINT:
-      return {TypeId::SMALLINT, static_cast<int16_t>(BUSTUB_INT16_NULL)};
+      return Value(TypeId::SMALLINT, static_cast<int16_t>(BUSTUB_INT16_NULL));
     case TypeId::INTEGER:
-      return {TypeId::INTEGER, static_cast<int32_t>(BUSTUB_INT32_NULL)};
+      return Value(TypeId::INTEGER, static_cast<int32_t>(BUSTUB_INT32_NULL));
     case TypeId::BIGINT:
-      return {TypeId::BIGINT, static_cast<int64_t>(BUSTUB_INT64_NULL)};
+      return Value(TypeId::BIGINT, static_cast<int64_t>(BUSTUB_INT64_NULL));
     case TypeId::DECIMAL:
-      return {TypeId::DECIMAL, static_cast<double>(BUSTUB_DECIMAL_NULL)};
+      return Value(TypeId::DECIMAL, static_cast<double>(BUSTUB_DECIMAL_NULL));
     default:
       break;
   }
   throw Exception("type error");
 }
 
-auto TinyintType::CompareEquals(const Value &left, const Value &right) const -> CmpBool {
+CmpBool TinyintType::CompareEquals(const Value &left, const Value &right) const {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
 
@@ -198,7 +198,7 @@ auto TinyintType::CompareEquals(const Value &left, const Value &right) const -> 
   throw Exception("type error");
 }
 
-auto TinyintType::CompareNotEquals(const Value &left, const Value &right) const -> CmpBool {
+CmpBool TinyintType::CompareNotEquals(const Value &left, const Value &right) const {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -210,7 +210,7 @@ auto TinyintType::CompareNotEquals(const Value &left, const Value &right) const 
   throw Exception("type error");
 }
 
-auto TinyintType::CompareLessThan(const Value &left, const Value &right) const -> CmpBool {
+CmpBool TinyintType::CompareLessThan(const Value &left, const Value &right) const {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -222,7 +222,7 @@ auto TinyintType::CompareLessThan(const Value &left, const Value &right) const -
   throw Exception("type error");
 }
 
-auto TinyintType::CompareLessThanEquals(const Value &left, const Value &right) const -> CmpBool {
+CmpBool TinyintType::CompareLessThanEquals(const Value &left, const Value &right) const {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -234,7 +234,7 @@ auto TinyintType::CompareLessThanEquals(const Value &left, const Value &right) c
   throw Exception("type error");
 }
 
-auto TinyintType::CompareGreaterThan(const Value &left, const Value &right) const -> CmpBool {
+CmpBool TinyintType::CompareGreaterThan(const Value &left, const Value &right) const {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -246,7 +246,7 @@ auto TinyintType::CompareGreaterThan(const Value &left, const Value &right) cons
   throw Exception("type error");
 }
 
-auto TinyintType::CompareGreaterThanEquals(const Value &left, const Value &right) const -> CmpBool {
+CmpBool TinyintType::CompareGreaterThanEquals(const Value &left, const Value &right) const {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -258,7 +258,7 @@ auto TinyintType::CompareGreaterThanEquals(const Value &left, const Value &right
   throw Exception("type error");
 }
 
-auto TinyintType::ToString(const Value &val) const -> std::string {
+std::string TinyintType::ToString(const Value &val) const {
   assert(val.CheckInteger());
   if (val.IsNull()) {
     return "tinyint_null";
@@ -271,53 +271,53 @@ void TinyintType::SerializeTo(const Value &val, char *storage) const {
 }
 
 // Deserialize a value of the given type from the given storage space.
-auto TinyintType::DeserializeFrom(const char *storage) const -> Value {
+Value TinyintType::DeserializeFrom(const char *storage) const {
   int8_t val = *reinterpret_cast<const int8_t *>(storage);
-  return {type_id_, val};
+  return Value(type_id_, val);
 }
 
-auto TinyintType::Copy(const Value &val) const -> Value {
+Value TinyintType::Copy(const Value &val) const {
   assert(val.CheckInteger());
-  return {TypeId::TINYINT, val.value_.tinyint_};
+  return Value(TypeId::TINYINT, val.value_.tinyint_);
 }
 
-auto TinyintType::CastAs(const Value &val, const TypeId type_id) const -> Value {
+Value TinyintType::CastAs(const Value &val, const TypeId type_id) const {
   switch (type_id) {
     case TypeId::TINYINT: {
       if (val.IsNull()) {
-        return {type_id, BUSTUB_INT8_NULL};
+        return Value(type_id, BUSTUB_INT8_NULL);
       }
       return Copy(val);
     }
     case TypeId::SMALLINT: {
       if (val.IsNull()) {
-        return {type_id, BUSTUB_INT16_NULL};
+        return Value(type_id, BUSTUB_INT16_NULL);
       }
-      return {type_id, static_cast<int16_t>(val.GetAs<int8_t>())};
+      return Value(type_id, static_cast<int16_t>(val.GetAs<int8_t>()));
     }
     case TypeId::INTEGER: {
       if (val.IsNull()) {
-        return {type_id, BUSTUB_INT32_NULL};
+        return Value(type_id, BUSTUB_INT32_NULL);
       }
-      return {type_id, static_cast<int32_t>(val.GetAs<int8_t>())};
+      return Value(type_id, static_cast<int32_t>(val.GetAs<int8_t>()));
     }
     case TypeId::BIGINT: {
       if (val.IsNull()) {
-        return {type_id, BUSTUB_INT64_NULL};
+        return Value(type_id, BUSTUB_INT64_NULL);
       }
-      return {type_id, static_cast<int64_t>(val.GetAs<int8_t>())};
+      return Value(type_id, static_cast<int64_t>(val.GetAs<int8_t>()));
     }
     case TypeId::DECIMAL: {
       if (val.IsNull()) {
-        return {type_id, BUSTUB_DECIMAL_NULL};
+        return Value(type_id, BUSTUB_DECIMAL_NULL);
       }
-      return {type_id, static_cast<double>(val.GetAs<int8_t>())};
+      return Value(type_id, static_cast<double>(val.GetAs<int8_t>()));
     }
     case TypeId::VARCHAR: {
       if (val.IsNull()) {
-        return {TypeId::VARCHAR, nullptr, 0, false};
+        return Value(TypeId::VARCHAR, nullptr, 0, false);
       }
-      return {TypeId::VARCHAR, val.ToString()};
+      return Value(TypeId::VARCHAR, val.ToString());
     }
     default:
       break;

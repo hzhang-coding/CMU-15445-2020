@@ -37,13 +37,13 @@ class ClockReplacer : public Replacer {
    */
   ~ClockReplacer() override;
 
-  auto Victim(frame_id_t *frame_id) -> bool override;
+  bool Victim(frame_id_t *frame_id) override;
 
   void Pin(frame_id_t frame_id) override;
 
   void Unpin(frame_id_t frame_id) override;
 
-  auto Size() -> size_t override;
+  size_t Size() override;
 
  private:
   // TODO(student): implement me!

@@ -18,7 +18,7 @@
 namespace bustub {
 IntegerParentType::IntegerParentType(TypeId type) : NumericType(type) {}
 
-auto IntegerParentType::Min(const Value &left, const Value &right) const -> Value {
+Value IntegerParentType::Min(const Value &left, const Value &right) const {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -31,7 +31,7 @@ auto IntegerParentType::Min(const Value &left, const Value &right) const -> Valu
   return right.Copy();
 }
 
-auto IntegerParentType::Max(const Value &left, const Value &right) const -> Value {
+Value IntegerParentType::Max(const Value &left, const Value &right) const {
   assert(left.CheckInteger());
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {

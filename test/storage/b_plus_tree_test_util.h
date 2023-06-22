@@ -2,11 +2,11 @@
 //
 //                         BusTub
 //
-// test_util.h
+// schema.h
 //
-// Identification: test/include/test_util.h
+// Identification: src/include/catalog/schema.h
 //
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -16,7 +16,6 @@
 #include <algorithm>
 #include <cstring>
 #include <iostream>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -28,32 +27,28 @@
 
 namespace bustub {
 
-auto ParseCreateStatement(const std::string &sql_base) -> std::unique_ptr<Schema> {
+/* Helpers */
+Schema *ParseCreateStatement(const std::string &sql_base) {
   std::string::size_type n;
-  std::vector<Column> v{};
+  std::vector<Column> v;
   std::string column_name;
   std::string column_type;
   int column_length = 0;
   TypeId type = INVALID;
-
   // create a copy of the sql query
   std::string sql = sql_base;
-
-  // Preprocess, transform sql string into lower case
+  // prepocess, transform sql string into lower case
   std::transform(sql.begin(), sql.end(), sql.begin(), ::tolower);
   std::vector<std::string> tok = StringUtil::Split(sql, ',');
-
-  // Iterate through returned result
-  for (const std::string &t : tok) {
+  // iterate through returned result
+  for (std::string &t : tok) {
     type = INVALID;
     column_length = 0;
-
-    // whitespace separate column name and type
+    // whitespace seperate column name and type
     n = t.find_first_of(' ');
     column_name = t.substr(0, n);
     column_type = t.substr(n + 1);
-
-    // Deal with varchar(size) situation
+    // deal with varchar(size) situation
     n = column_type.find_first_of('(');
     if (n != std::string::npos) {
       column_length = std::stoi(column_type.substr(n + 1));
@@ -75,21 +70,21 @@ auto ParseCreateStatement(const std::string &sql_base) -> std::unique_ptr<Schema
       type = VARCHAR;
       column_length = (column_length == 0) ? 32 : column_length;
     }
-
-    // Construct each column
-    if (type != INVALID) {
-      if (type == VARCHAR) {
-        Column col(column_name, type, column_length);
-        v.emplace_back(col);
-      } else {
-        Column col(column_name, type);
-        v.emplace_back(col);
-      }
-    } else {
+    // construct each column
+    if (type == INVALID) {
       throw Exception(ExceptionType::UNKNOWN_TYPE, "unknown type for create table");
+    } else if (type == VARCHAR) {
+      Column col(column_name, type, column_length);
+      v.emplace_back(col);
+    } else {
+      Column col(column_name, type);
+      v.emplace_back(col);
     }
   }
-  return std::make_unique<Schema>(v);
+  Schema *schema = new Schema(v);
+  // LOG_DEBUG("%s", schema->ToString().c_str());
+
+  return schema;
 }
 
 }  // namespace bustub

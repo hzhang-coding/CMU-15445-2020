@@ -12,7 +12,6 @@
 #pragma once
 
 #include <map>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -26,7 +25,7 @@ namespace bustub {
 INDEX_TEMPLATE_ARGUMENTS
 class BPlusTreeIndex : public Index {
  public:
-  BPlusTreeIndex(std::unique_ptr<IndexMetadata> &&metadata, BufferPoolManager *buffer_pool_manager);
+  BPlusTreeIndex(IndexMetadata *metadata, BufferPoolManager *buffer_pool_manager);
 
   void InsertEntry(const Tuple &key, RID rid, Transaction *transaction) override;
 
@@ -34,11 +33,11 @@ class BPlusTreeIndex : public Index {
 
   void ScanKey(const Tuple &key, std::vector<RID> *result, Transaction *transaction) override;
 
-  auto GetBeginIterator() -> INDEXITERATOR_TYPE;
+  INDEXITERATOR_TYPE GetBeginIterator();
 
-  auto GetBeginIterator(const KeyType &key) -> INDEXITERATOR_TYPE;
+  INDEXITERATOR_TYPE GetBeginIterator(const KeyType &key);
 
-  auto GetEndIterator() -> INDEXITERATOR_TYPE;
+  INDEXITERATOR_TYPE GetEndIterator();
 
  protected:
   // comparator for key

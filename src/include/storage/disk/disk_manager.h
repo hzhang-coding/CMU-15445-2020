@@ -15,7 +15,6 @@
 #include <atomic>
 #include <fstream>
 #include <future>  // NOLINT
-#include <mutex>   // NOLINT
 #include <string>
 
 #include "common/config.h"
@@ -69,16 +68,28 @@ class DiskManager {
    * @param offset offset of the log entry in the file
    * @return true if the read was successful, false otherwise
    */
-  auto ReadLog(char *log_data, int size, int offset) -> bool;
+  bool ReadLog(char *log_data, int size, int offset);
+
+  /**
+   * Allocate a page on disk.
+   * @return the id of the allocated page
+   */
+  page_id_t AllocatePage();
+
+  /**
+   * Deallocate a page on disk.
+   * @param page_id id of the page to deallocate
+   */
+  void DeallocatePage(page_id_t page_id);
 
   /** @return the number of disk flushes */
-  auto GetNumFlushes() const -> int;
+  int GetNumFlushes() const;
 
   /** @return true iff the in-memory content has not been flushed yet */
-  auto GetFlushState() const -> bool;
+  bool GetFlushState() const;
 
   /** @return the number of disk writes */
-  auto GetNumWrites() const -> int;
+  int GetNumWrites() const;
 
   /**
    * Sets the future which is used to check for non-blocking flushes.
@@ -87,22 +98,21 @@ class DiskManager {
   inline void SetFlushLogFuture(std::future<void> *f) { flush_log_f_ = f; }
 
   /** Checks if the non-blocking flush future was set. */
-  inline auto HasFlushLogFuture() -> bool { return flush_log_f_ != nullptr; }
+  inline bool HasFlushLogFuture() { return flush_log_f_ != nullptr; }
 
  private:
-  auto GetFileSize(const std::string &file_name) -> int;
+  int GetFileSize(const std::string &file_name);
   // stream to write log file
   std::fstream log_io_;
   std::string log_name_;
   // stream to write db file
   std::fstream db_io_;
   std::string file_name_;
-  int num_flushes_{0};
-  int num_writes_{0};
-  bool flush_log_{false};
-  std::future<void> *flush_log_f_{nullptr};
-  // With multiple buffer pool instances, need to protect file access
-  std::mutex db_io_latch_;
+  std::atomic<page_id_t> next_page_id_;
+  int num_flushes_;
+  int num_writes_;
+  bool flush_log_;
+  std::future<void> *flush_log_f_;
 };
 
 }  // namespace bustub

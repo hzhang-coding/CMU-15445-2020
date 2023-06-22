@@ -23,38 +23,38 @@ class IntegerType : public IntegerParentType {
   explicit IntegerType(TypeId type);
 
   // Other mathematical functions
-  auto Add(const Value &left, const Value &right) const -> Value override;
-  auto Subtract(const Value &left, const Value &right) const -> Value override;
-  auto Multiply(const Value &left, const Value &right) const -> Value override;
-  auto Divide(const Value &left, const Value &right) const -> Value override;
-  auto Modulo(const Value &left, const Value &right) const -> Value override;
-  auto Sqrt(const Value &val) const -> Value override;
+  Value Add(const Value &left, const Value &right) const override;
+  Value Subtract(const Value &left, const Value &right) const override;
+  Value Multiply(const Value &left, const Value &right) const override;
+  Value Divide(const Value &left, const Value &right) const override;
+  Value Modulo(const Value &left, const Value &right) const override;
+  Value Sqrt(const Value &val) const override;
 
   // Comparison functions
-  auto CompareEquals(const Value &left, const Value &right) const -> CmpBool override;
-  auto CompareNotEquals(const Value &left, const Value &right) const -> CmpBool override;
-  auto CompareLessThan(const Value &left, const Value &right) const -> CmpBool override;
-  auto CompareLessThanEquals(const Value &left, const Value &right) const -> CmpBool override;
-  auto CompareGreaterThan(const Value &left, const Value &right) const -> CmpBool override;
-  auto CompareGreaterThanEquals(const Value &left, const Value &right) const -> CmpBool override;
+  CmpBool CompareEquals(const Value &left, const Value &right) const override;
+  CmpBool CompareNotEquals(const Value &left, const Value &right) const override;
+  CmpBool CompareLessThan(const Value &left, const Value &right) const override;
+  CmpBool CompareLessThanEquals(const Value &left, const Value &right) const override;
+  CmpBool CompareGreaterThan(const Value &left, const Value &right) const override;
+  CmpBool CompareGreaterThanEquals(const Value &left, const Value &right) const override;
 
-  auto CastAs(const Value &val, TypeId type_id) const -> Value override;
+  Value CastAs(const Value &val, TypeId type_id) const override;
 
   // Debug
-  auto ToString(const Value &val) const -> std::string override;
+  std::string ToString(const Value &val) const override;
 
   // Serialize this value into the given storage space
   void SerializeTo(const Value &val, char *storage) const override;
 
   // Deserialize a value of the given type from the given storage space.
-  auto DeserializeFrom(const char *storage) const -> Value override;
+  Value DeserializeFrom(const char *storage) const override;
 
   // Create a copy of this value
-  auto Copy(const Value &val) const -> Value override;
+  Value Copy(const Value &val) const override;
 
  protected:
-  auto OperateNull(const Value &left, const Value &right) const -> Value override;
+  Value OperateNull(const Value &left, const Value &right) const override;
 
-  auto IsZero(const Value &val) const -> bool override;
+  bool IsZero(const Value &val) const override;
 };
 }  // namespace bustub

@@ -29,7 +29,9 @@ namespace bustub {
  */
 class Tuple {
   friend class TablePage;
+
   friend class TableHeap;
+
   friend class TableIterator;
 
  public:
@@ -46,7 +48,7 @@ class Tuple {
   Tuple(const Tuple &other);
 
   // assign operator, deep copy
-  auto operator=(const Tuple &other) -> Tuple &;
+  Tuple &operator=(const Tuple &other);
 
   ~Tuple() {
     if (allocated_) {
@@ -62,33 +64,33 @@ class Tuple {
   void DeserializeFrom(const char *storage);
 
   // return RID of current tuple
-  inline auto GetRid() const -> RID { return rid_; }
+  inline RID GetRid() const { return rid_; }
 
   // Get the address of this tuple in the table's backing store
-  inline auto GetData() const -> char * { return data_; }
+  inline char *GetData() const { return data_; }
 
   // Get length of the tuple, including varchar legth
-  inline auto GetLength() const -> uint32_t { return size_; }
+  inline uint32_t GetLength() const { return size_; }
 
   // Get the value of a specified column (const)
   // checks the schema to see how to return the Value.
-  auto GetValue(const Schema *schema, uint32_t column_idx) const -> Value;
+  Value GetValue(const Schema *schema, uint32_t column_idx) const;
 
   // Generates a key tuple given schemas and attributes
-  auto KeyFromTuple(const Schema &schema, const Schema &key_schema, const std::vector<uint32_t> &key_attrs) -> Tuple;
+  Tuple KeyFromTuple(const Schema &schema, const Schema &key_schema, const std::vector<uint32_t> &key_attrs);
 
   // Is the column value null ?
-  inline auto IsNull(const Schema *schema, uint32_t column_idx) const -> bool {
+  inline bool IsNull(const Schema *schema, uint32_t column_idx) const {
     Value value = GetValue(schema, column_idx);
     return value.IsNull();
   }
-  inline auto IsAllocated() -> bool { return allocated_; }
+  inline bool IsAllocated() { return allocated_; }
 
-  auto ToString(const Schema *schema) const -> std::string;
+  std::string ToString(const Schema *schema) const;
 
  private:
   // Get the starting storage address of specific column
-  auto GetDataPtr(const Schema *schema, uint32_t column_idx) const -> const char *;
+  const char *GetDataPtr(const Schema *schema, uint32_t column_idx) const;
 
   bool allocated_{false};  // is allocated?
   RID rid_{};              // if pointing to the table heap, the rid is valid

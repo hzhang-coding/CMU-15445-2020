@@ -54,7 +54,7 @@ class LinearProbeHashTable : public HashTable<KeyType, ValueType, KeyComparator>
    * @param value the value to be associated with the key
    * @return true if insert succeeded, false otherwise
    */
-  auto Insert(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool override;
+  bool Insert(Transaction *transaction, const KeyType &key, const ValueType &value) override;
 
   /**
    * Deletes the associated value for the given key.
@@ -63,7 +63,7 @@ class LinearProbeHashTable : public HashTable<KeyType, ValueType, KeyComparator>
    * @param value the value to delete
    * @return true if remove succeeded, false otherwise
    */
-  auto Remove(Transaction *transaction, const KeyType &key, const ValueType &value) -> bool override;
+  bool Remove(Transaction *transaction, const KeyType &key, const ValueType &value) override;
 
   /**
    * Performs a point query on the hash table.
@@ -72,7 +72,7 @@ class LinearProbeHashTable : public HashTable<KeyType, ValueType, KeyComparator>
    * @param[out] result the value(s) associated with a given key
    * @return the value(s) associated with the given key
    */
-  auto GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result) -> bool override;
+  bool GetValue(Transaction *transaction, const KeyType &key, std::vector<ValueType> *result) override;
 
   /**
    * Resizes the table to at least twice the initial size provided.
@@ -84,7 +84,7 @@ class LinearProbeHashTable : public HashTable<KeyType, ValueType, KeyComparator>
    * Gets the size of the hash table
    * @return current size of the hash table
    */
-  auto GetSize() -> size_t;
+  size_t GetSize();
 
  private:
   // member variable

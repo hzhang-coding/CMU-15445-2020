@@ -44,7 +44,7 @@ class RecoveryTest : public ::testing::Test {
 
 // NOLINTNEXTLINE
 TEST_F(RecoveryTest, DISABLED_RedoTest) {
-  auto *bustub_instance = new BustubInstance("test.db");
+  BustubInstance *bustub_instance = new BustubInstance("test.db");
 
   ASSERT_FALSE(enable_logging);
   LOG_INFO("Skip system recovering...");
@@ -133,7 +133,7 @@ TEST_F(RecoveryTest, DISABLED_RedoTest) {
 
 // NOLINTNEXTLINE
 TEST_F(RecoveryTest, DISABLED_UndoTest) {
-  auto *bustub_instance = new BustubInstance("test.db");
+  BustubInstance *bustub_instance = new BustubInstance("test.db");
 
   ASSERT_FALSE(enable_logging);
   LOG_INFO("Skip system recovering...");
@@ -212,7 +212,7 @@ TEST_F(RecoveryTest, DISABLED_UndoTest) {
 
 // NOLINTNEXTLINE
 TEST_F(RecoveryTest, DISABLED_CheckpointTest) {
-  auto *bustub_instance = new BustubInstance("test.db");
+  BustubInstance *bustub_instance = new BustubInstance("test.db");
 
   EXPECT_FALSE(enable_logging);
   LOG_INFO("Skip system recovering...");
@@ -251,8 +251,7 @@ TEST_F(RecoveryTest, DISABLED_CheckpointTest) {
   bustub_instance->checkpoint_manager_->BeginCheckpoint();
   bustub_instance->checkpoint_manager_->EndCheckpoint();
 
-  // Hacky
-  Page *pages = dynamic_cast<BufferPoolManagerInstance *>(bustub_instance->buffer_pool_manager_)->GetPages();
+  Page *pages = bustub_instance->buffer_pool_manager_->GetPages();
   size_t pool_size = bustub_instance->buffer_pool_manager_->GetPoolSize();
 
   // make sure that all pages in the buffer pool are marked as non-dirty

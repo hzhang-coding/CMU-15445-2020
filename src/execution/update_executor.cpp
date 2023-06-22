@@ -6,7 +6,7 @@
 //
 // Identification: src/execution/update_executor.cpp
 //
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+// Copyright (c) 2015-20, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 #include <memory>
@@ -17,34 +17,52 @@ namespace bustub {
 
 UpdateExecutor::UpdateExecutor(ExecutorContext *exec_ctx, const UpdatePlanNode *plan,
                                std::unique_ptr<AbstractExecutor> &&child_executor)
-    : AbstractExecutor(exec_ctx) {}
+    : AbstractExecutor(exec_ctx),
+      plan_(plan),
+      table_info_(exec_ctx_->GetCatalog()->GetTable(plan_->TableOid())),
+      child_executor_(std::move(child_executor)),
+      lock_mgr_(exec_ctx->GetLockManager()),
+      table_(table_info_->table_.get()),
+      schema_(&(table_info_->schema_)),
+      txn_(exec_ctx_->GetTransaction()) {}
 
-void UpdateExecutor::Init() {}
+void UpdateExecutor::Init() {
+  index_info_ = exec_ctx_->GetCatalog()->GetTableIndexes(table_info_->name_);
+  child_executor_->Init();
+}
 
-auto UpdateExecutor::Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool { return false; }
+bool UpdateExecutor::Next([[maybe_unused]] Tuple *tuple, RID *rid) {
+  if (!child_executor_->Next(tuple, rid)) {
+    return false;
+  }
 
-auto UpdateExecutor::GenerateUpdatedTuple(const Tuple &src_tuple) -> Tuple {
-  const auto &update_attrs = plan_->GetUpdateAttr();
-  Schema schema = table_info_->schema_;
-  uint32_t col_count = schema.GetColumnCount();
-  std::vector<Value> values;
-  for (uint32_t idx = 0; idx < col_count; idx++) {
-    if (update_attrs.find(idx) == update_attrs.cend()) {
-      values.emplace_back(src_tuple.GetValue(&schema, idx));
-    } else {
-      const UpdateInfo info = update_attrs.at(idx);
-      Value val = src_tuple.GetValue(&schema, idx);
-      switch (info.type_) {
-        case UpdateType::Add:
-          values.emplace_back(val.Add(ValueFactory::GetIntegerValue(info.update_val_)));
-          break;
-        case UpdateType::Set:
-          values.emplace_back(ValueFactory::GetIntegerValue(info.update_val_));
-          break;
+  if (lock_mgr_ != nullptr && txn_ != nullptr) {
+    if (!txn_->IsExclusiveLocked(*rid)) {
+      if (txn_->IsSharedLocked(*rid)) {
+        lock_mgr_->LockUpgrade(txn_, *rid);
+      } else {
+        lock_mgr_->LockExclusive(txn_, *rid);
       }
     }
   }
-  return Tuple{values, &schema};
-}
 
+  Tuple new_tuple = GenerateUpdatedTuple(*tuple);
+  table_->UpdateTuple(new_tuple, *rid, txn_);
+
+  for (auto index_info : index_info_) {
+    Index *index = index_info->index_.get();
+    Tuple old_key = tuple->KeyFromTuple(*schema_, index_info->key_schema_, index->GetMetadata()->GetKeyAttrs());
+    Tuple new_key = new_tuple.KeyFromTuple(*schema_, index_info->key_schema_, index->GetMetadata()->GetKeyAttrs());
+
+    static_cast<BPlusTreeIndex<GenericKey<8>, RID, GenericComparator<8>> *>(index)->DeleteEntry(old_key, *rid, txn_);
+    static_cast<BPlusTreeIndex<GenericKey<8>, RID, GenericComparator<8>> *>(index)->InsertEntry(new_key, *rid, txn_);
+
+    // IndexWriteRecord index_write_record = IndexWriteRecord(*rid, plan_->TableOid(), WType::UPDATE, new_tuple,
+    // index_info->index_oid_, exec_ctx_->GetCatalog()); txn_->AppendTableWriteRecord(index_write_record);
+  }
+
+  *tuple = new_tuple;
+
+  return true;
+}
 }  // namespace bustub

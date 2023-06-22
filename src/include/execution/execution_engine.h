@@ -6,7 +6,7 @@
 //
 // Identification: src/include/execution/execution_engine.h
 //
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -22,49 +22,33 @@
 #include "execution/plans/abstract_plan.h"
 #include "storage/table/tuple.h"
 namespace bustub {
-
-/**
- * The ExecutionEngine class executes query plans.
- */
 class ExecutionEngine {
  public:
-  /**
-   * Construct a new ExecutionEngine instance.
-   * @param bpm The buffer pool manager used by the execution engine
-   * @param txn_mgr The transaction manager used by the execution engine
-   * @param catalog The catalog used by the execution engine
-   */
   ExecutionEngine(BufferPoolManager *bpm, TransactionManager *txn_mgr, Catalog *catalog)
-      : bpm_{bpm}, txn_mgr_{txn_mgr}, catalog_{catalog} {}
+      : bpm_(bpm), txn_mgr_(txn_mgr), catalog_(catalog) {}
 
   DISALLOW_COPY_AND_MOVE(ExecutionEngine);
 
-  /**
-   * Execute a query plan.
-   * @param plan The query plan to execute
-   * @param result_set The set of tuples produced by executing the plan
-   * @param txn The transaction context in which the query executes
-   * @param exec_ctx The executor context in which the query executes
-   * @return `true` if execution of the query plan succeeds, `false` otherwise
-   */
-  auto Execute(const AbstractPlanNode *plan, std::vector<Tuple> *result_set, Transaction *txn,
-               ExecutorContext *exec_ctx) -> bool {
-    // Construct and executor for the plan
+  bool Execute(const AbstractPlanNode *plan, std::vector<Tuple> *result_set, Transaction *txn,
+               ExecutorContext *exec_ctx) {
+    // construct executor
     auto executor = ExecutorFactory::CreateExecutor(exec_ctx, plan);
 
-    // Prepare the root executor
+    // prepare
     executor->Init();
 
-    // Execute the query plan
+    // execute
     try {
       Tuple tuple;
       RID rid;
+      PlanType type = plan->GetType();
+      bool is_append = result_set != nullptr && type != PlanType::Insert && type != PlanType::Delete;
       while (executor->Next(&tuple, &rid)) {
-        if (result_set != nullptr) {
+        if (is_append) {
           result_set->push_back(tuple);
         }
       }
-    } catch (Exception &e) {
+    } catch (std::out_of_range &e) {
       // TODO(student): handle exceptions
     }
 
@@ -72,11 +56,8 @@ class ExecutionEngine {
   }
 
  private:
-  /** The buffer pool manager used during query execution */
   [[maybe_unused]] BufferPoolManager *bpm_;
-  /** The transaction manager used during query execution */
   [[maybe_unused]] TransactionManager *txn_mgr_;
-  /** The catalog used during query execution */
   [[maybe_unused]] Catalog *catalog_;
 };
 

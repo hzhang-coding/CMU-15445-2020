@@ -49,6 +49,6 @@ void LogManager::StopFlushThread() {}
  *  }
  *
  */
-auto LogManager::AppendLogRecord(LogRecord *log_record) -> lsn_t { return INVALID_LSN; }
+lsn_t LogManager::AppendLogRecord(LogRecord *log_record) { return INVALID_LSN; }
 
 }  // namespace bustub

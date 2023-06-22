@@ -11,12 +11,6 @@ namespace bustub {
 
 static constexpr uint32_t TEST1_SIZE = 1000;
 static constexpr uint32_t TEST2_SIZE = 100;
-static constexpr uint32_t TEST3_SIZE = 100;
-static constexpr uint32_t TEST4_SIZE = 100;
-static constexpr uint32_t TEST6_SIZE = 100;
-static constexpr uint32_t TEST7_SIZE = 100;
-static constexpr uint32_t TEST8_SIZE = 10;
-static constexpr uint32_t TEST9_SIZE = 10;
 static constexpr uint32_t TEST_VARLEN_SIZE = 10;
 
 class TableGenerator {
@@ -32,8 +26,10 @@ class TableGenerator {
   void GenerateTestTables();
 
  private:
-  /** Enumeration to characterize the distribution of values in a given column */
-  enum class Dist : uint8_t { Uniform, Zipf_50, Zipf_75, Zipf_95, Zipf_99, Serial, Cyclic };
+  /**
+   * Enumeration to characterize the distribution of values in a given column
+   */
+  enum class Dist : uint8_t { Uniform, Zipf_50, Zipf_75, Zipf_95, Zipf_99, Serial };
 
   /**
    * Metadata about the data for a given column. Specifically, the type of the
@@ -101,12 +97,12 @@ class TableGenerator {
         : name_(name), num_rows_(num_rows), col_meta_(std::move(col_meta)) {}
   };
 
-  void FillTable(TableInfo *info, TableInsertMeta *table_meta);
+  void FillTable(TableMetadata *info, TableInsertMeta *table_meta);
 
-  auto MakeValues(ColumnInsertMeta *col_meta, uint32_t count) -> std::vector<Value>;
+  std::vector<Value> MakeValues(ColumnInsertMeta *col_meta, uint32_t count);
 
   template <typename CppType>
-  auto GenNumericValues(ColumnInsertMeta *col_meta, uint32_t count) -> std::vector<Value>;
+  std::vector<Value> GenNumericValues(ColumnInsertMeta *col_meta, uint32_t count);
 
  private:
   ExecutorContext *exec_ctx_;

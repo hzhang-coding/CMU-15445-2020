@@ -24,59 +24,59 @@ class IntegerParentType : public NumericType {
   explicit IntegerParentType(TypeId type);
 
   // Other mathematical functions
-  auto Add(const Value &left, const Value &right) const -> Value override = 0;
-  auto Subtract(const Value &left, const Value &right) const -> Value override = 0;
-  auto Multiply(const Value &left, const Value &right) const -> Value override = 0;
-  auto Divide(const Value &left, const Value &right) const -> Value override = 0;
-  auto Modulo(const Value &left, const Value &right) const -> Value override = 0;
-  auto Min(const Value &left, const Value &right) const -> Value override;
-  auto Max(const Value &left, const Value &right) const -> Value override;
-  auto Sqrt(const Value &val) const -> Value override = 0;
+  Value Add(const Value &left, const Value &right) const override = 0;
+  Value Subtract(const Value &left, const Value &right) const override = 0;
+  Value Multiply(const Value &left, const Value &right) const override = 0;
+  Value Divide(const Value &left, const Value &right) const override = 0;
+  Value Modulo(const Value &left, const Value &right) const override = 0;
+  Value Min(const Value &left, const Value &right) const override;
+  Value Max(const Value &left, const Value &right) const override;
+  Value Sqrt(const Value &val) const override = 0;
 
   // Comparison functions
-  auto CompareEquals(const Value &left, const Value &right) const -> CmpBool override = 0;
-  auto CompareNotEquals(const Value &left, const Value &right) const -> CmpBool override = 0;
-  auto CompareLessThan(const Value &left, const Value &right) const -> CmpBool override = 0;
-  auto CompareLessThanEquals(const Value &left, const Value &right) const -> CmpBool override = 0;
-  auto CompareGreaterThan(const Value &left, const Value &right) const -> CmpBool override = 0;
-  auto CompareGreaterThanEquals(const Value &left, const Value &right) const -> CmpBool override = 0;
+  CmpBool CompareEquals(const Value &left, const Value &right) const override = 0;
+  CmpBool CompareNotEquals(const Value &left, const Value &right) const override = 0;
+  CmpBool CompareLessThan(const Value &left, const Value &right) const override = 0;
+  CmpBool CompareLessThanEquals(const Value &left, const Value &right) const override = 0;
+  CmpBool CompareGreaterThan(const Value &left, const Value &right) const override = 0;
+  CmpBool CompareGreaterThanEquals(const Value &left, const Value &right) const override = 0;
 
-  auto CastAs(const Value &val, TypeId type_id) const -> Value override = 0;
+  Value CastAs(const Value &val, TypeId type_id) const override = 0;
 
   // Integer types are always inlined
-  auto IsInlined(const Value &val) const -> bool override { return true; }
+  bool IsInlined(const Value &val) const override { return true; }
 
   // Debug
-  auto ToString(const Value &val) const -> std::string override = 0;
+  std::string ToString(const Value &val) const override = 0;
 
   // Serialize this value into the given storage space
   void SerializeTo(const Value &val, char *storage) const override = 0;
 
   // Deserialize a value of the given type from the given storage space.
-  auto DeserializeFrom(const char *storage) const -> Value override = 0;
+  Value DeserializeFrom(const char *storage) const override = 0;
 
   // Create a copy of this value
-  auto Copy(const Value &val) const -> Value override = 0;
+  Value Copy(const Value &val) const override = 0;
 
  protected:
   template <class T1, class T2>
-  auto AddValue(const Value &left, const Value &right) const -> Value;
+  Value AddValue(const Value &left, const Value &right) const;
   template <class T1, class T2>
-  auto SubtractValue(const Value &left, const Value &right) const -> Value;
+  Value SubtractValue(const Value &left, const Value &right) const;
   template <class T1, class T2>
-  auto MultiplyValue(const Value &left, const Value &right) const -> Value;
+  Value MultiplyValue(const Value &left, const Value &right) const;
   template <class T1, class T2>
-  auto DivideValue(const Value &left, const Value &right) const -> Value;
+  Value DivideValue(const Value &left, const Value &right) const;
   template <class T1, class T2>
-  auto ModuloValue(const Value &left, const Value &right) const -> Value;
+  Value ModuloValue(const Value &left, const Value &right) const;
 
-  auto OperateNull(const Value &left, const Value &right) const -> Value override = 0;
+  Value OperateNull(const Value &left, const Value &right) const override = 0;
 
-  auto IsZero(const Value &val) const -> bool override = 0;
+  bool IsZero(const Value &val) const override = 0;
 };
 
 template <class T1, class T2>
-auto IntegerParentType::AddValue(const Value &left, const Value &right) const -> Value {
+Value IntegerParentType::AddValue(const Value &left, const Value &right) const {
   auto x = left.GetAs<T1>();
   auto y = right.GetAs<T2>();
   auto sum1 = static_cast<T1>(x + y);
@@ -99,7 +99,7 @@ auto IntegerParentType::AddValue(const Value &left, const Value &right) const ->
 }
 
 template <class T1, class T2>
-auto IntegerParentType::SubtractValue(const Value &left, const Value &right) const -> Value {
+Value IntegerParentType::SubtractValue(const Value &left, const Value &right) const {
   auto x = left.GetAs<T1>();
   auto y = right.GetAs<T2>();
   auto diff1 = static_cast<T1>(x - y);
@@ -121,7 +121,7 @@ auto IntegerParentType::SubtractValue(const Value &left, const Value &right) con
 }
 
 template <class T1, class T2>
-auto IntegerParentType::MultiplyValue(const Value &left, const Value &right) const -> Value {
+Value IntegerParentType::MultiplyValue(const Value &left, const Value &right) const {
   auto x = left.GetAs<T1>();
   auto y = right.GetAs<T2>();
   auto prod1 = static_cast<T1>(x * y);
@@ -143,7 +143,7 @@ auto IntegerParentType::MultiplyValue(const Value &left, const Value &right) con
 }
 
 template <class T1, class T2>
-auto IntegerParentType::DivideValue(const Value &left, const Value &right) const -> Value {
+Value IntegerParentType::DivideValue(const Value &left, const Value &right) const {
   auto x = left.GetAs<T1>();
   auto y = right.GetAs<T2>();
   if (y == 0) {
@@ -158,7 +158,7 @@ auto IntegerParentType::DivideValue(const Value &left, const Value &right) const
 }
 
 template <class T1, class T2>
-auto IntegerParentType::ModuloValue(const Value &left, const Value &right) const -> Value {
+Value IntegerParentType::ModuloValue(const Value &left, const Value &right) const {
   auto x = left.GetAs<T1>();
   auto y = right.GetAs<T2>();
   if (y == 0) {

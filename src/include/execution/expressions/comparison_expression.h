@@ -34,28 +34,27 @@ class ComparisonExpression : public AbstractExpression {
   ComparisonExpression(const AbstractExpression *left, const AbstractExpression *right, ComparisonType comp_type)
       : AbstractExpression({left, right}, TypeId::BOOLEAN), comp_type_{comp_type} {}
 
-  auto Evaluate(const Tuple *tuple, const Schema *schema) const -> Value override {
+  Value Evaluate(const Tuple *tuple, const Schema *schema) const override {
     Value lhs = GetChildAt(0)->Evaluate(tuple, schema);
     Value rhs = GetChildAt(1)->Evaluate(tuple, schema);
     return ValueFactory::GetBooleanValue(PerformComparison(lhs, rhs));
   }
 
-  auto EvaluateJoin(const Tuple *left_tuple, const Schema *left_schema, const Tuple *right_tuple,
-                    const Schema *right_schema) const -> Value override {
+  Value EvaluateJoin(const Tuple *left_tuple, const Schema *left_schema, const Tuple *right_tuple,
+                     const Schema *right_schema) const override {
     Value lhs = GetChildAt(0)->EvaluateJoin(left_tuple, left_schema, right_tuple, right_schema);
     Value rhs = GetChildAt(1)->EvaluateJoin(left_tuple, left_schema, right_tuple, right_schema);
     return ValueFactory::GetBooleanValue(PerformComparison(lhs, rhs));
   }
 
-  auto EvaluateAggregate(const std::vector<Value> &group_bys, const std::vector<Value> &aggregates) const
-      -> Value override {
+  Value EvaluateAggregate(const std::vector<Value> &group_bys, const std::vector<Value> &aggregates) const override {
     Value lhs = GetChildAt(0)->EvaluateAggregate(group_bys, aggregates);
     Value rhs = GetChildAt(1)->EvaluateAggregate(group_bys, aggregates);
     return ValueFactory::GetBooleanValue(PerformComparison(lhs, rhs));
   }
 
  private:
-  auto PerformComparison(const Value &lhs, const Value &rhs) const -> CmpBool {
+  CmpBool PerformComparison(const Value &lhs, const Value &rhs) const {
     switch (comp_type_) {
       case ComparisonType::Equal:
         return lhs.CompareEquals(rhs);

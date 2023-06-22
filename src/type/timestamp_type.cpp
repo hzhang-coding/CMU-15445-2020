@@ -21,7 +21,7 @@ namespace bustub {
 
 TimestampType::TimestampType() : Type(TypeId::TIMESTAMP) {}
 
-auto TimestampType::CompareEquals(const Value &left, const Value &right) const -> CmpBool {
+CmpBool TimestampType::CompareEquals(const Value &left, const Value &right) const {
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
@@ -29,7 +29,7 @@ auto TimestampType::CompareEquals(const Value &left, const Value &right) const -
   return GetCmpBool(left.GetAs<uint64_t>() == right.GetAs<uint64_t>());
 }
 
-auto TimestampType::CompareNotEquals(const Value &left, const Value &right) const -> CmpBool {
+CmpBool TimestampType::CompareNotEquals(const Value &left, const Value &right) const {
   assert(left.CheckComparable(right));
   if (right.IsNull()) {
     return CmpBool::CmpNull;
@@ -37,7 +37,7 @@ auto TimestampType::CompareNotEquals(const Value &left, const Value &right) cons
   return GetCmpBool(left.GetAs<uint64_t>() != right.GetAs<uint64_t>());
 }
 
-auto TimestampType::CompareLessThan(const Value &left, const Value &right) const -> CmpBool {
+CmpBool TimestampType::CompareLessThan(const Value &left, const Value &right) const {
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
@@ -45,7 +45,7 @@ auto TimestampType::CompareLessThan(const Value &left, const Value &right) const
   return GetCmpBool(left.GetAs<uint64_t>() < right.GetAs<uint64_t>());
 }
 
-auto TimestampType::CompareLessThanEquals(const Value &left, const Value &right) const -> CmpBool {
+CmpBool TimestampType::CompareLessThanEquals(const Value &left, const Value &right) const {
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
@@ -53,7 +53,7 @@ auto TimestampType::CompareLessThanEquals(const Value &left, const Value &right)
   return GetCmpBool(left.GetAs<uint64_t>() <= right.GetAs<uint64_t>());
 }
 
-auto TimestampType::CompareGreaterThan(const Value &left, const Value &right) const -> CmpBool {
+CmpBool TimestampType::CompareGreaterThan(const Value &left, const Value &right) const {
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
@@ -61,7 +61,7 @@ auto TimestampType::CompareGreaterThan(const Value &left, const Value &right) co
   return GetCmpBool(left.GetAs<int64_t>() > right.GetAs<int64_t>());
 }
 
-auto TimestampType::CompareGreaterThanEquals(const Value &left, const Value &right) const -> CmpBool {
+CmpBool TimestampType::CompareGreaterThanEquals(const Value &left, const Value &right) const {
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return CmpBool::CmpNull;
@@ -69,7 +69,7 @@ auto TimestampType::CompareGreaterThanEquals(const Value &left, const Value &rig
   return GetCmpBool(left.GetAs<uint64_t>() >= right.GetAs<uint64_t>());
 }
 
-auto TimestampType::Min(const Value &left, const Value &right) const -> Value {
+Value TimestampType::Min(const Value &left, const Value &right) const {
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return left.OperateNull(right);
@@ -80,7 +80,7 @@ auto TimestampType::Min(const Value &left, const Value &right) const -> Value {
   return right.Copy();
 }
 
-auto TimestampType::Max(const Value &left, const Value &right) const -> Value {
+Value TimestampType::Max(const Value &left, const Value &right) const {
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
     return left.OperateNull(right);
@@ -92,7 +92,7 @@ auto TimestampType::Max(const Value &left, const Value &right) const -> Value {
 }
 
 // Debug
-auto TimestampType::ToString(const Value &val) const -> std::string {
+std::string TimestampType::ToString(const Value &val) const {
   if (val.IsNull()) {
     return "timestamp_null";
   }
@@ -135,15 +135,15 @@ void TimestampType::SerializeTo(const Value &val, char *storage) const {
 }
 
 // Deserialize a value of the given type from the given storage space.
-auto TimestampType::DeserializeFrom(const char *storage) const -> Value {
+Value TimestampType::DeserializeFrom(const char *storage) const {
   uint64_t val = *reinterpret_cast<const uint64_t *>(storage);
-  return {type_id_, val};
+  return Value(type_id_, val);
 }
 
 // Create a copy of this value
-auto TimestampType::Copy(const Value &val) const -> Value { return {val}; }
+Value TimestampType::Copy(const Value &val) const { return Value(val); }
 
-auto TimestampType::CastAs(const Value &val, const TypeId type_id) const -> Value {
+Value TimestampType::CastAs(const Value &val, const TypeId type_id) const {
   switch (type_id) {
     case TypeId::TIMESTAMP:
       return Copy(val);

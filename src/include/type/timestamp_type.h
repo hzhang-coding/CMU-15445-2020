@@ -26,32 +26,32 @@ class TimestampType : public Type {
   TimestampType();
 
   // Comparison functions
-  auto CompareEquals(const Value &left, const Value &right) const -> CmpBool override;
-  auto CompareNotEquals(const Value &left, const Value &right) const -> CmpBool override;
-  auto CompareLessThan(const Value &left, const Value &right) const -> CmpBool override;
-  auto CompareLessThanEquals(const Value &left, const Value &right) const -> CmpBool override;
-  auto CompareGreaterThan(const Value &left, const Value &right) const -> CmpBool override;
-  auto CompareGreaterThanEquals(const Value &left, const Value &right) const -> CmpBool override;
+  CmpBool CompareEquals(const Value &left, const Value &right) const override;
+  CmpBool CompareNotEquals(const Value &left, const Value &right) const override;
+  CmpBool CompareLessThan(const Value &left, const Value &right) const override;
+  CmpBool CompareLessThanEquals(const Value &left, const Value &right) const override;
+  CmpBool CompareGreaterThan(const Value &left, const Value &right) const override;
+  CmpBool CompareGreaterThanEquals(const Value &left, const Value &right) const override;
 
   // Other mathematical functions
-  auto Min(const Value &left, const Value &right) const -> Value override;
-  auto Max(const Value &left, const Value &right) const -> Value override;
+  Value Min(const Value &left, const Value &right) const override;
+  Value Max(const Value &left, const Value &right) const override;
 
-  auto IsInlined(const Value &val) const -> bool override { return true; }
+  bool IsInlined(const Value &val) const override { return true; }
 
   // Debug
-  auto ToString(const Value &val) const -> std::string override;
+  std::string ToString(const Value &val) const override;
 
   // Serialize this value into the given storage space
   void SerializeTo(const Value &val, char *storage) const override;
 
   // Deserialize a value of the given type from the given storage space.
-  auto DeserializeFrom(const char *storage) const -> Value override;
+  Value DeserializeFrom(const char *storage) const override;
 
   // Create a copy of this value
-  auto Copy(const Value &val) const -> Value override;
+  Value Copy(const Value &val) const override;
 
-  auto CastAs(const Value &val, TypeId type_id) const -> Value override;
+  Value CastAs(const Value &val, TypeId type_id) const override;
 };
 
 }  // namespace bustub

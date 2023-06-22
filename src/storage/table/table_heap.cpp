@@ -36,7 +36,7 @@ TableHeap::TableHeap(BufferPoolManager *buffer_pool_manager, LockManager *lock_m
   buffer_pool_manager_->UnpinPage(first_page_id_, true);
 }
 
-auto TableHeap::InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn) -> bool {
+bool TableHeap::InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn) {
   if (tuple.size_ + 32 > PAGE_SIZE) {  // larger than one page size
     txn->SetState(TransactionState::ABORTED);
     return false;
@@ -90,7 +90,7 @@ auto TableHeap::InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn) -> b
   return true;
 }
 
-auto TableHeap::MarkDelete(const RID &rid, Transaction *txn) -> bool {
+bool TableHeap::MarkDelete(const RID &rid, Transaction *txn) {
   // TODO(Amadou): remove empty page
   // Find the page which contains the tuple.
   auto page = reinterpret_cast<TablePage *>(buffer_pool_manager_->FetchPage(rid.GetPageId()));
@@ -109,7 +109,7 @@ auto TableHeap::MarkDelete(const RID &rid, Transaction *txn) -> bool {
   return true;
 }
 
-auto TableHeap::UpdateTuple(const Tuple &tuple, const RID &rid, Transaction *txn) -> bool {
+bool TableHeap::UpdateTuple(const Tuple &tuple, const RID &rid, Transaction *txn) {
   // Find the page which contains the tuple.
   auto page = reinterpret_cast<TablePage *>(buffer_pool_manager_->FetchPage(rid.GetPageId()));
   // If the page could not be found, then abort the transaction.
@@ -153,7 +153,7 @@ void TableHeap::RollbackDelete(const RID &rid, Transaction *txn) {
   buffer_pool_manager_->UnpinPage(page->GetTablePageId(), true);
 }
 
-auto TableHeap::GetTuple(const RID &rid, Tuple *tuple, Transaction *txn) -> bool {
+bool TableHeap::GetTuple(const RID &rid, Tuple *tuple, Transaction *txn) {
   // Find the page which contains the tuple.
   auto page = static_cast<TablePage *>(buffer_pool_manager_->FetchPage(rid.GetPageId()));
   // If the page could not be found, then abort the transaction.
@@ -169,7 +169,7 @@ auto TableHeap::GetTuple(const RID &rid, Tuple *tuple, Transaction *txn) -> bool
   return res;
 }
 
-auto TableHeap::Begin(Transaction *txn) -> TableIterator {
+TableIterator TableHeap::Begin(Transaction *txn) {
   // Start an iterator from the first page.
   // TODO(Wuwen): Hacky fix for now. Removing empty pages is a better way to handle this.
   RID rid;
@@ -186,9 +186,9 @@ auto TableHeap::Begin(Transaction *txn) -> TableIterator {
     }
     page_id = page->GetNextPageId();
   }
-  return {this, rid, txn};
+  return TableIterator(this, rid, txn);
 }
 
-auto TableHeap::End() -> TableIterator { return {this, RID(INVALID_PAGE_ID, 0), nullptr}; }
+TableIterator TableHeap::End() { return TableIterator(this, RID(INVALID_PAGE_ID, 0), nullptr); }
 
 }  // namespace bustub

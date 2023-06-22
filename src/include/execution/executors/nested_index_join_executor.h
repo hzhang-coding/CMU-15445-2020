@@ -41,14 +41,26 @@ class NestIndexJoinExecutor : public AbstractExecutor {
   NestIndexJoinExecutor(ExecutorContext *exec_ctx, const NestedIndexJoinPlanNode *plan,
                         std::unique_ptr<AbstractExecutor> &&child_executor);
 
-  auto GetOutputSchema() -> const Schema * override { return plan_->OutputSchema(); }
+  const Schema *GetOutputSchema() override { return plan_->OutputSchema(); }
 
   void Init() override;
 
-  auto Next(Tuple *tuple, RID *rid) -> bool override;
+  bool Next(Tuple *tuple, RID *rid) override;
 
  private:
   /** The nested index join plan node. */
   const NestedIndexJoinPlanNode *plan_;
+  std::unique_ptr<AbstractExecutor> child_executor_;
+  const AbstractExpression *predicate_;
+  const Schema *output_schema_;
+  const Schema *outer_schema_;
+  const Schema *inner_schema_;
+  Transaction *txn_;
+  Tuple outer_tuple_;
+  RID outer_rid_;
+  std::vector<Tuple> inner_tuples_;
+  uint32_t inner_idx_;
+  uint32_t inner_size_;
+  bool is_end_;
 };
 }  // namespace bustub

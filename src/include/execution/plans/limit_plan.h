@@ -6,44 +6,44 @@
 //
 // Identification: src/include/execution/plans/limit_plan.h
 //
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+// Copyright (c) 2015-19, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
 #pragma once
 
+#include "execution/expressions/abstract_expression.h"
 #include "execution/plans/abstract_plan.h"
 
 namespace bustub {
-
 /**
- * Limit constraints the number of output tuples produced by its child executor.
+ * Limit constraints the number of output tuples produced by its child executor. The offset indicates the number
+ * of rows to be skipped before returning.
  */
 class LimitPlanNode : public AbstractPlanNode {
  public:
   /**
-   * Construct a new LimitPlanNode instance.
-   * @param child The child plan from which tuples are obtained
-   * @param limit The number of output tuples
+   * Creates a new limit plan node that has a child plan.
+   * @param child the child plan to obtain tuple from
+   * @param limit the number of output tuples
+   * @param offset the number of rows to be skipped
    */
-  LimitPlanNode(const Schema *output_schema, const AbstractPlanNode *child, std::size_t limit)
-      : AbstractPlanNode(output_schema, {child}), limit_{limit} {}
+  LimitPlanNode(const Schema *output_schema, const AbstractPlanNode *child, size_t limit, size_t offset)
+      : AbstractPlanNode(output_schema, {child}), limit_(limit), offset_(offset) {}
 
-  /** @return The type of the plan node */
-  auto GetType() const -> PlanType override { return PlanType::Limit; }
+  PlanType GetType() const override { return PlanType::Limit; }
 
-  /** @return The limit */
-  auto GetLimit() const -> size_t { return limit_; }
+  size_t GetLimit() const { return limit_; }
 
-  /** @return The child plan node */
-  auto GetChildPlan() const -> const AbstractPlanNode * {
+  size_t GetOffset() const { return offset_; }
+
+  const AbstractPlanNode *GetChildPlan() const {
     BUSTUB_ASSERT(GetChildren().size() == 1, "Limit should have at most one child plan.");
     return GetChildAt(0);
   }
 
  private:
-  /** The limit */
-  std::size_t limit_;
+  size_t limit_;
+  size_t offset_;
 };
-
 }  // namespace bustub

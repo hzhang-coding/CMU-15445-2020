@@ -20,7 +20,7 @@ namespace bustub {
 
 BooleanType::BooleanType() : Type(TypeId::BOOLEAN) {}
 
-auto BooleanType::CompareEquals(const Value &left, const Value &right) const -> CmpBool {
+CmpBool BooleanType::CompareEquals(const Value &left, const Value &right) const {
   assert(GetTypeId() == TypeId::BOOLEAN);
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -29,7 +29,7 @@ auto BooleanType::CompareEquals(const Value &left, const Value &right) const -> 
   return BOOLEAN_COMPARE_FUNC(==);  // NOLINT
 }
 
-auto BooleanType::CompareNotEquals(const Value &left, const Value &right) const -> CmpBool {
+CmpBool BooleanType::CompareNotEquals(const Value &left, const Value &right) const {
   assert(GetTypeId() == TypeId::BOOLEAN);
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -38,7 +38,7 @@ auto BooleanType::CompareNotEquals(const Value &left, const Value &right) const 
   return BOOLEAN_COMPARE_FUNC(!=);  // NOLINT
 }
 
-auto BooleanType::CompareLessThan(const Value &left, const Value &right) const -> CmpBool {
+CmpBool BooleanType::CompareLessThan(const Value &left, const Value &right) const {
   assert(GetTypeId() == TypeId::BOOLEAN);
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -47,7 +47,7 @@ auto BooleanType::CompareLessThan(const Value &left, const Value &right) const -
   return BOOLEAN_COMPARE_FUNC(<);  // NOLINT
 }
 
-auto BooleanType::CompareLessThanEquals(const Value &left, const Value &right) const -> CmpBool {
+CmpBool BooleanType::CompareLessThanEquals(const Value &left, const Value &right) const {
   assert(GetTypeId() == TypeId::BOOLEAN);
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -56,7 +56,7 @@ auto BooleanType::CompareLessThanEquals(const Value &left, const Value &right) c
   return BOOLEAN_COMPARE_FUNC(<=);  // NOLINT
 }
 
-auto BooleanType::CompareGreaterThan(const Value &left, const Value &right) const -> CmpBool {
+CmpBool BooleanType::CompareGreaterThan(const Value &left, const Value &right) const {
   assert(GetTypeId() == TypeId::BOOLEAN);
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -65,7 +65,7 @@ auto BooleanType::CompareGreaterThan(const Value &left, const Value &right) cons
   return BOOLEAN_COMPARE_FUNC(>);  // NOLINT
 }
 
-auto BooleanType::CompareGreaterThanEquals(const Value &left, const Value &right) const -> CmpBool {
+CmpBool BooleanType::CompareGreaterThanEquals(const Value &left, const Value &right) const {
   assert(GetTypeId() == TypeId::BOOLEAN);
   assert(left.CheckComparable(right));
   if (left.IsNull() || right.IsNull()) {
@@ -74,7 +74,7 @@ auto BooleanType::CompareGreaterThanEquals(const Value &left, const Value &right
   return BOOLEAN_COMPARE_FUNC(>=);  // NOLINT
 }
 
-auto BooleanType::ToString(const Value &val) const -> std::string {
+std::string BooleanType::ToString(const Value &val) const {
   assert(GetTypeId() == TypeId::BOOLEAN);
   if (val.value_.boolean_ == 1) {
     return "true";
@@ -90,22 +90,22 @@ void BooleanType::SerializeTo(const Value &val, char *storage) const {
 }
 
 // Deserialize a value of the given type from the given storage space.
-auto BooleanType::DeserializeFrom(const char *storage) const -> Value {
+Value BooleanType::DeserializeFrom(const char *storage) const {
   int8_t val = *reinterpret_cast<const int8_t *>(storage);
-  return {TypeId::BOOLEAN, val};
+  return Value(TypeId::BOOLEAN, val);
 }
 
-auto BooleanType::Copy(const Value &val) const -> Value { return {TypeId::BOOLEAN, val.value_.boolean_}; }
+Value BooleanType::Copy(const Value &val) const { return Value(TypeId::BOOLEAN, val.value_.boolean_); }
 
-auto BooleanType::CastAs(const Value &val, const TypeId type_id) const -> Value {
+Value BooleanType::CastAs(const Value &val, const TypeId type_id) const {
   switch (type_id) {
     case TypeId::BOOLEAN:
       return Copy(val);
     case TypeId::VARCHAR: {
       if (val.IsNull()) {
-        return {TypeId::VARCHAR, nullptr, 0, false};
+        return Value(TypeId::VARCHAR, nullptr, 0, false);
       }
-      return {TypeId::VARCHAR, val.ToString()};
+      return Value(TypeId::VARCHAR, val.ToString());
     }
     default:
       break;

@@ -6,7 +6,7 @@
 //
 // Identification: src/include/buffer/buffer_pool_manager.h
 //
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+// Copyright (c) 2015-2019, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -31,48 +31,55 @@ class BufferPoolManager {
   enum class CallbackType { BEFORE, AFTER };
   using bufferpool_callback_fn = void (*)(enum CallbackType, const page_id_t page_id);
 
-  BufferPoolManager() = default;
+  /**
+   * Creates a new BufferPoolManager.
+   * @param pool_size the size of the buffer pool
+   * @param disk_manager the disk manager
+   * @param log_manager the log manager (for testing only: nullptr = disable logging)
+   */
+  BufferPoolManager(size_t pool_size, DiskManager *disk_manager, LogManager *log_manager = nullptr);
+
   /**
    * Destroys an existing BufferPoolManager.
    */
-  virtual ~BufferPoolManager() = default;
+  ~BufferPoolManager();
 
   /** Grading function. Do not modify! */
-  auto FetchPage(page_id_t page_id, bufferpool_callback_fn callback = nullptr) -> Page * {
+  Page *FetchPage(page_id_t page_id, bufferpool_callback_fn callback = nullptr) {
     GradingCallback(callback, CallbackType::BEFORE, page_id);
-    auto *result = FetchPgImp(page_id);
+    auto *result = FetchPageImpl(page_id);
     GradingCallback(callback, CallbackType::AFTER, page_id);
     return result;
   }
 
   /** Grading function. Do not modify! */
-  auto UnpinPage(page_id_t page_id, bool is_dirty, bufferpool_callback_fn callback = nullptr) -> bool {
+  bool UnpinPage(page_id_t page_id, bool is_dirty, bufferpool_callback_fn callback = nullptr) {
     GradingCallback(callback, CallbackType::BEFORE, page_id);
-    auto result = UnpinPgImp(page_id, is_dirty);
+    auto result = UnpinPageImpl(page_id, is_dirty);
     GradingCallback(callback, CallbackType::AFTER, page_id);
     return result;
   }
 
   /** Grading function. Do not modify! */
-  auto FlushPage(page_id_t page_id, bufferpool_callback_fn callback = nullptr) -> bool {
+  bool FlushPage(page_id_t page_id, bufferpool_callback_fn callback = nullptr) {
     GradingCallback(callback, CallbackType::BEFORE, page_id);
-    auto result = FlushPgImp(page_id);
+    auto result = FlushPageImpl(page_id);
     GradingCallback(callback, CallbackType::AFTER, page_id);
     return result;
   }
 
   /** Grading function. Do not modify! */
-  auto NewPage(page_id_t *page_id, bufferpool_callback_fn callback = nullptr) -> Page * {
+  Page *NewPage(page_id_t *page_id, bufferpool_callback_fn callback = nullptr) {
     GradingCallback(callback, CallbackType::BEFORE, INVALID_PAGE_ID);
-    auto *result = NewPgImp(page_id);
+    auto *result = NewPageImpl(page_id);
     GradingCallback(callback, CallbackType::AFTER, *page_id);
     return result;
   }
 
   /** Grading function. Do not modify! */
-  auto DeletePage(page_id_t page_id, bufferpool_callback_fn callback = nullptr) -> bool {
+  bool DeletePage(page_id_t page_id, bufferpool_callback_fn callback = nullptr) {
     GradingCallback(callback, CallbackType::BEFORE, page_id);
-    auto result = DeletePgImp(page_id);
+    auto result = DeletePageImpl(page_id);
     GradingCallback(callback, CallbackType::AFTER, page_id);
     return result;
   }
@@ -80,12 +87,15 @@ class BufferPoolManager {
   /** Grading function. Do not modify! */
   void FlushAllPages(bufferpool_callback_fn callback = nullptr) {
     GradingCallback(callback, CallbackType::BEFORE, INVALID_PAGE_ID);
-    FlushAllPgsImp();
+    FlushAllPagesImpl();
     GradingCallback(callback, CallbackType::AFTER, INVALID_PAGE_ID);
   }
 
+  /** @return pointer to all the pages in the buffer pool */
+  Page *GetPages() { return pages_; }
+
   /** @return size of the buffer pool */
-  virtual auto GetPoolSize() -> size_t = 0;
+  size_t GetPoolSize() { return pool_size_; }
 
  protected:
   /**
@@ -106,7 +116,7 @@ class BufferPoolManager {
    * @param page_id id of page to be fetched
    * @return the requested page
    */
-  virtual auto FetchPgImp(page_id_t page_id) -> Page * = 0;
+  Page *FetchPageImpl(page_id_t page_id);
 
   /**
    * Unpin the target page from the buffer pool.
@@ -114,32 +124,49 @@ class BufferPoolManager {
    * @param is_dirty true if the page should be marked as dirty, false otherwise
    * @return false if the page pin count is <= 0 before this call, true otherwise
    */
-  virtual auto UnpinPgImp(page_id_t page_id, bool is_dirty) -> bool = 0;
+  bool UnpinPageImpl(page_id_t page_id, bool is_dirty);
 
   /**
    * Flushes the target page to disk.
    * @param page_id id of page to be flushed, cannot be INVALID_PAGE_ID
    * @return false if the page could not be found in the page table, true otherwise
    */
-  virtual auto FlushPgImp(page_id_t page_id) -> bool = 0;
+  bool FlushPageImpl(page_id_t page_id);
 
   /**
    * Creates a new page in the buffer pool.
    * @param[out] page_id id of created page
    * @return nullptr if no new pages could be created, otherwise pointer to new page
    */
-  virtual auto NewPgImp(page_id_t *page_id) -> Page * = 0;
+  Page *NewPageImpl(page_id_t *page_id);
 
   /**
    * Deletes a page from the buffer pool.
    * @param page_id id of page to be deleted
    * @return false if the page exists but could not be deleted, true if the page didn't exist or deletion succeeded
    */
-  virtual auto DeletePgImp(page_id_t page_id) -> bool = 0;
+  bool DeletePageImpl(page_id_t page_id);
 
   /**
    * Flushes all the pages in the buffer pool to disk.
    */
-  virtual void FlushAllPgsImp() = 0;
+  void FlushAllPagesImpl();
+
+  /** Number of pages in the buffer pool. */
+  size_t pool_size_;
+  /** Array of buffer pool pages. */
+  Page *pages_;
+  /** Pointer to the disk manager. */
+  DiskManager *disk_manager_ __attribute__((__unused__));
+  /** Pointer to the log manager. */
+  LogManager *log_manager_ __attribute__((__unused__));
+  /** Page table for keeping track of buffer pool pages. */
+  std::unordered_map<page_id_t, frame_id_t> page_table_;
+  /** Replacer to find unpinned pages for replacement. */
+  Replacer *replacer_;
+  /** List of free pages. */
+  std::list<frame_id_t> free_list_;
+  /** This latch protects shared data structures. We recommend updating this comment to describe what it protects. */
+  std::mutex latch_;
 };
 }  // namespace bustub

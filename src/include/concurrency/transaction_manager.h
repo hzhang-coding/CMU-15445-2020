@@ -13,7 +13,6 @@
 #pragma once
 
 #include <atomic>
-#include <shared_mutex>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -41,8 +40,7 @@ class TransactionManager {
    * @param isolation_level an optional isolation level of the transaction.
    * @return an initialized transaction
    */
-  auto Begin(Transaction *txn = nullptr, IsolationLevel isolation_level = IsolationLevel::REPEATABLE_READ)
-      -> Transaction *;
+  Transaction *Begin(Transaction *txn = nullptr, IsolationLevel isolation_level = IsolationLevel::REPEATABLE_READ);
 
   /**
    * Commits a transaction.
@@ -62,19 +60,16 @@ class TransactionManager {
 
   /** The transaction map is a global list of all the running transactions in the system. */
   static std::unordered_map<txn_id_t, Transaction *> txn_map;
-  static std::shared_mutex txn_map_mutex;
 
   /**
    * Locates and returns the transaction with the given transaction ID.
    * @param txn_id the id of the transaction to be found, it must exist!
    * @return the transaction with the given transaction id
    */
-  static auto GetTransaction(txn_id_t txn_id) -> Transaction * {
-    TransactionManager::txn_map_mutex.lock_shared();
+  static Transaction *GetTransaction(txn_id_t txn_id) {
     assert(TransactionManager::txn_map.find(txn_id) != TransactionManager::txn_map.end());
     auto *res = TransactionManager::txn_map[txn_id];
     assert(res != nullptr);
-    TransactionManager::txn_map_mutex.unlock_shared();
     return res;
   }
 

@@ -35,8 +35,8 @@ void TablePage::Init(page_id_t page_id, uint32_t page_size, page_id_t prev_page_
   SetTupleCount(0);
 }
 
-auto TablePage::InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn, LockManager *lock_manager,
-                            LogManager *log_manager) -> bool {
+bool TablePage::InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn, LockManager *lock_manager,
+                            LogManager *log_manager) {
   BUSTUB_ASSERT(tuple.size_ > 0, "Cannot have empty tuples.");
   // If there is not enough space, then return false.
   if (GetFreeSpaceRemaining() < tuple.size_ + SIZE_TUPLE) {
@@ -85,8 +85,7 @@ auto TablePage::InsertTuple(const Tuple &tuple, RID *rid, Transaction *txn, Lock
   return true;
 }
 
-auto TablePage::MarkDelete(const RID &rid, Transaction *txn, LockManager *lock_manager, LogManager *log_manager)
-    -> bool {
+bool TablePage::MarkDelete(const RID &rid, Transaction *txn, LockManager *lock_manager, LogManager *log_manager) {
   uint32_t slot_num = rid.GetSlotNum();
   // If the slot number is invalid, abort the transaction.
   if (slot_num >= GetTupleCount()) {
@@ -128,8 +127,8 @@ auto TablePage::MarkDelete(const RID &rid, Transaction *txn, LockManager *lock_m
   return true;
 }
 
-auto TablePage::UpdateTuple(const Tuple &new_tuple, Tuple *old_tuple, const RID &rid, Transaction *txn,
-                            LockManager *lock_manager, LogManager *log_manager) -> bool {
+bool TablePage::UpdateTuple(const Tuple &new_tuple, Tuple *old_tuple, const RID &rid, Transaction *txn,
+                            LockManager *lock_manager, LogManager *log_manager) {
   BUSTUB_ASSERT(new_tuple.size_ > 0, "Cannot have empty tuples.");
   uint32_t slot_num = rid.GetSlotNum();
   // If the slot number is invalid, abort the transaction.
@@ -266,7 +265,7 @@ void TablePage::RollbackDelete(const RID &rid, Transaction *txn, LogManager *log
   }
 }
 
-auto TablePage::GetTuple(const RID &rid, Tuple *tuple, Transaction *txn, LockManager *lock_manager) -> bool {
+bool TablePage::GetTuple(const RID &rid, Tuple *tuple, Transaction *txn, LockManager *lock_manager) {
   // Get the current slot number.
   uint32_t slot_num = rid.GetSlotNum();
   // If somehow we have more slots than tuples, abort the transaction.
@@ -306,7 +305,7 @@ auto TablePage::GetTuple(const RID &rid, Tuple *tuple, Transaction *txn, LockMan
   return true;
 }
 
-auto TablePage::GetFirstTupleRid(RID *first_rid) -> bool {
+bool TablePage::GetFirstTupleRid(RID *first_rid) {
   // Find and return the first valid tuple.
   for (uint32_t i = 0; i < GetTupleCount(); ++i) {
     if (!IsDeleted(GetTupleSize(i))) {
@@ -318,7 +317,7 @@ auto TablePage::GetFirstTupleRid(RID *first_rid) -> bool {
   return false;
 }
 
-auto TablePage::GetNextTupleRid(const RID &cur_rid, RID *next_rid) -> bool {
+bool TablePage::GetNextTupleRid(const RID &cur_rid, RID *next_rid) {
   BUSTUB_ASSERT(cur_rid.GetPageId() == GetTablePageId(), "Wrong table!");
   // Find and return the first valid tuple after our current slot number.
   for (auto i = cur_rid.GetSlotNum() + 1; i < GetTupleCount(); ++i) {

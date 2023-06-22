@@ -1,27 +1,30 @@
-//===----------------------------------------------------------------------===//
-//
-//                         BusTub
-//
-// b_plus_tree_print_test.cpp
-//
-// Identification: test/storage/b_plus_tree_print_test.cpp
-//
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
-//
-//===----------------------------------------------------------------------===//
+/**
+ * b_plus_tree_test.cpp
+ *
+ * This ia a local Debug test.
+ * Feel free to change this file for your own testing purpose.
+ *
+ * THIS TEST WILL NOT BE RUN ON GRADESCOPE
+ * THIS TEST WILL NOT BE RUN ON GRADESCOPE
+ * THIS TEST WILL NOT BE RUN ON GRADESCOPE
+ * THIS TEST WILL NOT BE RUN ON GRADESCOPE
+ * THIS TEST WILL NOT BE RUN ON GRADESCOPE
+ * THIS TEST WILL NOT BE RUN ON GRADESCOPE
+ *
+ */
 
 #include <cstdio>
 #include <iostream>
 
-#include "buffer/buffer_pool_manager_instance.h"
+#include "b_plus_tree_test_util.h"  // NOLINT
+#include "buffer/buffer_pool_manager.h"
 #include "common/logger.h"
 #include "gtest/gtest.h"
 #include "storage/index/b_plus_tree.h"
-#include "test_util.h"  // NOLINT
 
 namespace bustub {
 
-auto UsageMessage() -> std::string {
+std::string usageMessage() {
   std::string message =
       "Enter any of the following commands after the prompt > :\n"
       "\ti <k>  -- Insert <k> (int64_t) as both key and value).\n"
@@ -48,24 +51,24 @@ TEST(BptTreeTest, DISABLED_UnitTest) {
   int leaf_max_size;
   int internal_max_size;
 
-  std::cout << UsageMessage();
+  std::cout << usageMessage();
   std::cin >> leaf_max_size;
   std::cin >> internal_max_size;
 
   // create KeyComparator and index schema
-  std::string create_stmt = "a bigint";
-  auto key_schema = ParseCreateStatement(create_stmt);
-  GenericComparator<8> comparator(key_schema.get());
+  std::string createStmt = "a bigint";
+  Schema *key_schema = ParseCreateStatement(createStmt);
+  GenericComparator<8> comparator(key_schema);
 
-  auto *disk_manager = new DiskManager("test.db");
-  BufferPoolManager *bpm = new BufferPoolManagerInstance(100, disk_manager);
+  DiskManager *disk_manager = new DiskManager("test.db");
+  BufferPoolManager *bpm = new BufferPoolManager(100, disk_manager);
   // create and fetch header_page
   page_id_t page_id;
   auto header_page = bpm->NewPage(&page_id);
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm, comparator, leaf_max_size, internal_max_size);
   // create transaction
-  auto *transaction = new Transaction(0);
+  Transaction *transaction = new Transaction(0);
   while (!quit) {
     std::cout << "> ";
     std::cin >> instruction;
@@ -100,15 +103,16 @@ TEST(BptTreeTest, DISABLED_UnitTest) {
         tree.Draw(bpm, filename);
         break;
       case '?':
-        std::cout << UsageMessage();
+        std::cout << usageMessage();
         break;
       default:
         std::cin.ignore(256, '\n');
-        std::cout << UsageMessage();
+        std::cout << usageMessage();
         break;
     }
   }
   bpm->UnpinPage(header_page->GetPageId(), true);
+  delete key_schema;
   delete bpm;
   delete transaction;
   delete disk_manager;

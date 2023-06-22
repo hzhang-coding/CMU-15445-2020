@@ -29,20 +29,20 @@ class Type {
 
   virtual ~Type() = default;
   // Get the size of this data type in bytes
-  static auto GetTypeSize(TypeId type_id) -> uint64_t;
+  static uint64_t GetTypeSize(TypeId type_id);
 
   // Is this type coercable from the other type
-  auto IsCoercableFrom(TypeId type_id) const -> bool;
+  bool IsCoercableFrom(TypeId type_id) const;
 
   // Debug info
-  static auto TypeIdToString(TypeId type_id) -> std::string;
+  static std::string TypeIdToString(TypeId type_id);
 
-  static auto GetMinValue(TypeId type_id) -> Value;
-  static auto GetMaxValue(TypeId type_id) -> Value;
+  static Value GetMinValue(TypeId type_id);
+  static Value GetMaxValue(TypeId type_id);
 
-  inline static auto GetInstance(TypeId type_id) -> Type * { return k_types[type_id]; }
+  inline static Type *GetInstance(TypeId type_id) { return k_types[type_id]; }
 
-  inline auto GetTypeId() const -> TypeId { return type_id_; }
+  inline TypeId GetTypeId() const { return type_id_; }
 
   // Comparison functions
   //
@@ -62,51 +62,51 @@ class Type {
   //     and since Value is a core component of the execution engine, we want to
   //     make it as performant as possible.
   // (2) Keep the interface consistent by making all functions purely virtual.
-  virtual auto CompareEquals(const Value &left, const Value &right) const -> CmpBool;
-  virtual auto CompareNotEquals(const Value &left, const Value &right) const -> CmpBool;
-  virtual auto CompareLessThan(const Value &left, const Value &right) const -> CmpBool;
-  virtual auto CompareLessThanEquals(const Value &left, const Value &right) const -> CmpBool;
-  virtual auto CompareGreaterThan(const Value &left, const Value &right) const -> CmpBool;
-  virtual auto CompareGreaterThanEquals(const Value &left, const Value &right) const -> CmpBool;
+  virtual CmpBool CompareEquals(const Value &left, const Value &right) const;
+  virtual CmpBool CompareNotEquals(const Value &left, const Value &right) const;
+  virtual CmpBool CompareLessThan(const Value &left, const Value &right) const;
+  virtual CmpBool CompareLessThanEquals(const Value &left, const Value &right) const;
+  virtual CmpBool CompareGreaterThan(const Value &left, const Value &right) const;
+  virtual CmpBool CompareGreaterThanEquals(const Value &left, const Value &right) const;
 
   // Other mathematical functions
-  virtual auto Add(const Value &left, const Value &right) const -> Value;
-  virtual auto Subtract(const Value &left, const Value &right) const -> Value;
-  virtual auto Multiply(const Value &left, const Value &right) const -> Value;
-  virtual auto Divide(const Value &left, const Value &right) const -> Value;
-  virtual auto Modulo(const Value &left, const Value &right) const -> Value;
-  virtual auto Min(const Value &left, const Value &right) const -> Value;
-  virtual auto Max(const Value &left, const Value &right) const -> Value;
-  virtual auto Sqrt(const Value &val) const -> Value;
-  virtual auto OperateNull(const Value &val, const Value &right) const -> Value;
-  virtual auto IsZero(const Value &val) const -> bool;
+  virtual Value Add(const Value &left, const Value &right) const;
+  virtual Value Subtract(const Value &left, const Value &right) const;
+  virtual Value Multiply(const Value &left, const Value &right) const;
+  virtual Value Divide(const Value &left, const Value &right) const;
+  virtual Value Modulo(const Value &left, const Value &right) const;
+  virtual Value Min(const Value &left, const Value &right) const;
+  virtual Value Max(const Value &left, const Value &right) const;
+  virtual Value Sqrt(const Value &val) const;
+  virtual Value OperateNull(const Value &val, const Value &right) const;
+  virtual bool IsZero(const Value &val) const;
 
   // Is the data inlined into this classes storage space, or must it be accessed
   // through an indirection/pointer?
-  virtual auto IsInlined(const Value &val) const -> bool;
+  virtual bool IsInlined(const Value &val) const;
 
   // Return a stringified version of this value
-  virtual auto ToString(const Value &val) const -> std::string;
+  virtual std::string ToString(const Value &val) const;
 
   // Serialize this value into the given storage space.
   virtual void SerializeTo(const Value &val, char *storage) const;
 
   // Deserialize a value of the given type from the given storage space.
-  virtual auto DeserializeFrom(const char *storage) const -> Value;
+  virtual Value DeserializeFrom(const char *storage) const;
 
   // Create a copy of this value
-  virtual auto Copy(const Value &val) const -> Value;
+  virtual Value Copy(const Value &val) const;
 
-  virtual auto CastAs(const Value &val, TypeId type_id) const -> Value;
+  virtual Value CastAs(const Value &val, TypeId type_id) const;
 
   // Access the raw variable length data
-  virtual auto GetData(const Value &val) const -> const char *;
+  virtual const char *GetData(const Value &val) const;
 
   // Get the length of the variable length data
-  virtual auto GetLength(const Value &val) const -> uint32_t;
+  virtual uint32_t GetLength(const Value &val) const;
 
   // Access the raw varlen data stored from the tuple storage
-  virtual auto GetData(char *storage) -> char *;
+  virtual char *GetData(char *storage);
 
  protected:
   // The actual type ID

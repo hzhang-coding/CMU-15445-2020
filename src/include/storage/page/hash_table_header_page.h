@@ -36,7 +36,7 @@ class HashTableHeaderPage {
   /**
    * @return the number of buckets in the hash table;
    */
-  auto GetSize() const -> size_t;
+  size_t GetSize() const;
 
   /**
    * Sets the size field of the hash table to size
@@ -48,7 +48,7 @@ class HashTableHeaderPage {
   /**
    * @return the page ID of this page
    */
-  auto GetPageId() const -> page_id_t;
+  page_id_t GetPageId() const;
 
   /**
    * Sets the page ID of this page
@@ -60,7 +60,7 @@ class HashTableHeaderPage {
   /**
    * @return the lsn of this page
    */
-  auto GetLSN() const -> lsn_t;
+  lsn_t GetLSN() const;
 
   /**
    * Sets the LSN of this page
@@ -82,20 +82,19 @@ class HashTableHeaderPage {
    * @param index the index of the block
    * @return the page_id for the block.
    */
-  auto GetBlockPageId(size_t index) -> page_id_t;
+  page_id_t GetBlockPageId(size_t index);
 
   /**
    * @return the number of blocks currently stored in the header page
    */
-  auto NumBlocks() -> size_t;
+  size_t NumBlocks();
 
  private:
   __attribute__((unused)) lsn_t lsn_;
   __attribute__((unused)) size_t size_;
   __attribute__((unused)) page_id_t page_id_;
   __attribute__((unused)) size_t next_ind_;
-  // Flexible array member for page data.
-  __attribute__((unused)) page_id_t block_page_ids_[1];
+  __attribute__((unused)) page_id_t block_page_ids_[0];
 };
 
 }  // namespace bustub

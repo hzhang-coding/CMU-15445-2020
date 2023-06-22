@@ -6,7 +6,7 @@
 //
 // Identification: src/include/expression/abstract_expression.h
 //
-// Copyright (c) 2015-2021, Carnegie Mellon University Database Group
+// Copyright (c) 2015-19, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -36,37 +36,36 @@ class AbstractExpression {
   /** Virtual destructor. */
   virtual ~AbstractExpression() = default;
 
-  /** @return The value obtained by evaluating the tuple with the given schema */
-  virtual auto Evaluate(const Tuple *tuple, const Schema *schema) const -> Value = 0;
+  /** @return the value obtained by evaluating the tuple with the given schema */
+  virtual Value Evaluate(const Tuple *tuple, const Schema *schema) const = 0;
 
   /**
-   * Returns the value obtained by evaluating a JOIN.
-   * @param left_tuple The left tuple
-   * @param left_schema The left tuple's schema
-   * @param right_tuple The right tuple
-   * @param right_schema The right tuple's schema
-   * @return The value obtained by evaluating a JOIN on the left and right
+   * Returns the value obtained by evaluating a join.
+   * @param left_tuple the left tuple
+   * @param left_schema the left tuple's schema
+   * @param right_tuple the right tuple
+   * @param right_schema the right tuple's schema
+   * @return the value obtained by evaluating a join on the left and right
    */
-  virtual auto EvaluateJoin(const Tuple *left_tuple, const Schema *left_schema, const Tuple *right_tuple,
-                            const Schema *right_schema) const -> Value = 0;
+  virtual Value EvaluateJoin(const Tuple *left_tuple, const Schema *left_schema, const Tuple *right_tuple,
+                             const Schema *right_schema) const = 0;
 
   /**
    * Returns the value obtained by evaluating the aggregates.
-   * @param group_bys The group by values
-   * @param aggregates The aggregate values
-   * @return The value obtained by checking the aggregates and group-bys
+   * @param group_bys the group by values
+   * @param aggregates the aggregate values
+   * @return the value obtained by checking the aggregates and group bys
    */
-  virtual auto EvaluateAggregate(const std::vector<Value> &group_bys, const std::vector<Value> &aggregates) const
-      -> Value = 0;
+  virtual Value EvaluateAggregate(const std::vector<Value> &group_bys, const std::vector<Value> &aggregates) const = 0;
 
   /** @return the child_idx'th child of this expression */
-  auto GetChildAt(uint32_t child_idx) const -> const AbstractExpression * { return children_[child_idx]; }
+  const AbstractExpression *GetChildAt(uint32_t child_idx) const { return children_[child_idx]; }
 
   /** @return the children of this expression, ordering may matter */
-  auto GetChildren() const -> const std::vector<const AbstractExpression *> & { return children_; }
+  const std::vector<const AbstractExpression *> &GetChildren() const { return children_; }
 
   /** @return the type of this expression if it were to be evaluated */
-  virtual auto GetReturnType() const -> TypeId { return ret_type_; }
+  virtual TypeId GetReturnType() const { return ret_type_; }
 
  private:
   /** The children of this expression. Note that the order of appearance of children may matter. */
